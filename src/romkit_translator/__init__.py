@@ -1,0 +1,1 @@
+"""ROMKit Translator application."""

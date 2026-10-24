@@ -1,0 +1,1 @@
+"""Translation table and editor."""

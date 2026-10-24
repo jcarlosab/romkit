@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "game": "Digimon World Re:Digitize PSP",
+  "adapter": "digimon",
+  "units": 15209,
+  "statuses": {
+    "translated": 1,
+    "reviewed": 1,
+    "untranslated": 15207
+  },
+  "source_sha256": "423fa452c9b425713977aec07b80d96be27c16052a452861e93e58caefca073f",
+  "source_language": "ja",
+  "target_language": "es-ES",
+  "snapshot_date": "2026-10-24",
+  "files_sha256": {
+    "text/main.jsonl": "1c74e7d93981a1c8a0b6f7deaebcb3da9620f994a53a1517862bcd9d573dae14",
+    "project.toml": "7c2f735b22e541660c9e2f5149356f2fc9dcabdfcd5f17f21d8ca4c25e01a007"
+  }
+}

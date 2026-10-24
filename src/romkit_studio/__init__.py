@@ -1,0 +1,1 @@
+"""ROMKit Studio application."""

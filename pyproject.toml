@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "romkit"
+dynamic = ["version"]
+description = "Shared Python core and two PySide6 desktop applications for ROM tools."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pycdlib>=1.14,<2",
+    "PySide6>=6.8",
+]
+
+[project.scripts]
+romkit-studio = "romkit_studio.app:main"
+romkit-translator = "romkit_translator.app:main"
+
+[dependency-groups]
+dev = ["pytest>=8.3"]
+build = ["pyinstaller==6.22.3", "pyinstaller-hooks-contrib==2026.9"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/romkit_core", "src/romkit_studio", "src/romkit_translator"]
+
+[tool.hatch.version]
+path = "src/romkit_core/__init__.py"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = ["unit: tests without Qt widgets", "integration: Qt and process tests"]

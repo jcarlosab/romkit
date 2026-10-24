@@ -1,0 +1,4 @@
+# Preserve authorized editorial snapshots byte for byte on every platform.
+catalogs/**/project.toml -text
+catalogs/**/text/*.jsonl -text
+.gitignore text eol=lf

@@ -1,0 +1,5 @@
+schema_version = 1
+platform = "psp"
+source_sha256 = "423fa452c9b425713977aec07b80d96be27c16052a452861e93e58caefca073f"
+source_language = "ja"
+target_language = "es-ES"

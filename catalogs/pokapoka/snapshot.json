@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "game": "MonHun Nikki: Poka Poka Ailu Mura G",
+  "adapter": "pokapoka",
+  "units": 70561,
+  "statuses": {
+    "untranslated": 70561
+  },
+  "source_sha256": "d6c23863d368f27fd83f6647b0e5bee7339afdea868c1d1d9d14779d5505adc6",
+  "source_language": "ja",
+  "target_language": "es-ES",
+  "snapshot_date": "2026-10-24",
+  "files_sha256": {
+    "text/main.jsonl": "114052b582bd83a2dc7ad221feb7c458440521f96b344b0df66f3c3d919905b5",
+    "project.toml": "31989af73756d098b417f8af0f9c2a228e9fa6ba63c5e8d40944e36eeb7780e8"
+  }
+}
