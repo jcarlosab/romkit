@@ -7,6 +7,8 @@ name = "romkit"
 dynamic = ["version"]
 description = "Shared Python core and two PySide6 desktop applications for ROM tools."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.13"
 dependencies = [
     "pycdlib>=1.14,<2",

@@ -57,7 +57,7 @@ Los imports antiguos son compatibilidad, no deben recibir lógica nueva.
 El importador común valida identidad, proyectos y controles y delega el escritor.
 La detección y extracción en Studio deben pasar por el registro; los lectores de
 imágenes cargan solo los adaptadores habilitados. No añadas dependencias de juegos
-nuevos al arranque de la base. La compilación con `tools/desktop/build.py --profile`
+nuevos al arranque de la base. La compilación con `scripts/desktop/build.py --profile`
 fija el perfil y excluye físicamente los módulos de otros juegos. Translator es común.
 
 Digimon dispone de escritura fija y un modo experimental en `digimon/repack.py`.
@@ -192,13 +192,14 @@ ni incluir ROMs, gráficos extraídos, rutas personales o `.romkit`. No extender
 excepción a otros proyectos sin que el usuario lo solicite.
 
 Studio/Translator y los adaptadores permanecen en `src/`: son el producto principal.
-Los scripts de compilación y las utilidades independientes pertenecen a `tools/`.
+Los scripts de compilación y publicación pertenecen a `scripts/desktop/`.
+Las utilidades independientes permanecen en `tools/`. No confundir scripts con productos.
 Las releases del scraper/M3U tienen historial propio; no modificar sus assets ni
 renumerarlas al publicar Studio/Translator. La versión Desktop sale de `__version__`
 y se replica en ventanas, PE VERSIONINFO, manifiestos y ZIP. Antes de publicar,
 comprobar todos los perfiles, el checksum de cada paquete y los catálogos autorizados.
 
-Compila Windows con `tools/desktop/build.py`: el script aísla PATH y las variables
+Compila Windows con `scripts/desktop/build.py`: el script aísla PATH y las variables
 de Qt/Python para que PyInstaller no recoja DLL de otras herramientas (por ejemplo
 una ICU incompatible de Poppler). Mantén la limpieza y los cachés separados por perfil.
 Una compilación no está validada porque su proceso siga vivo: puede estar mostrando

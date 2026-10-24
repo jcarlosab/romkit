@@ -39,8 +39,9 @@ romkit/
   catalogs/               # proyectos editoriales actuales autorizados
     digimon/
     pokapoka/
+  scripts/
+    desktop/              # compilación, empaquetado, iconos y lanzadores
   tools/
-    desktop/              # diseño de iconos, launchers y compilación por perfil
     scraper/              # herramienta adicional ya presente en el repositorio
     m3u-organizer/        # herramienta adicional ya presente en el repositorio
   docs/
@@ -108,3 +109,11 @@ Puedes publicar también la compilación completa de Studio como otro ZIP. Copia
 carpeta completa; el `.exe` solo no contiene todas las dependencias. Studio y Translator
 se publican como `v1.0.0`, separados del historial de las utilidades ya publicadas.
 Los ZIP llevan versión en su nombre.
+
+Los EXE autónomos se compilan con `scripts/desktop/build.py --onefile` y se publican
+también como assets individuales de Translator, Base y cada juego. Incluyen las
+dependencias y las extraen temporalmente al arrancar. No deben confundirse con el
+EXE pequeño de una carpeta `_internal`, que necesita esa carpeta completa.
+
+La licencia MIT de la raíz cubre el código propio de Studio/Translator y sus scripts.
+Las herramientas con licencia propia, dependencias y catálogos conservan sus derechos.

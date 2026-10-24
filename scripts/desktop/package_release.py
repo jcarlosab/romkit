@@ -30,6 +30,7 @@ def package(source, destination):
             for file in sorted(root.rglob('*')):
                 if file.is_file():
                     archive.write(file,Path(folder)/file.relative_to(root))
+            archive.write(ROOT/'LICENSE',folder+'/LICENSE')
             archive.writestr(folder+'/LEEME.txt',f'{folder} {version}\n\nExtrae la carpeta completa y ejecuta {folder}.exe.\nConserva _internal junto al ejecutable. No necesitas Python.\nDocumentación: https://github.com/jcarlosab/romkit\n')
         with zipfile.ZipFile(output) as archive:
             if archive.testzip() is not None:

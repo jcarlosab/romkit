@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-spec = importlib.util.spec_from_file_location('desktop_build', Path(__file__).parents[2] / 'tools/desktop/build.py')
+spec = importlib.util.spec_from_file_location('desktop_build', Path(__file__).parents[2] / 'scripts/desktop/build.py')
 desktop = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(desktop)
 

@@ -4,6 +4,8 @@ Monorepo Python con un paquete compartido y dos aplicaciones de escritorio PySid
 
 **ROMKit Studio y Translator 1.0.0**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.0.0).
 Cada ZIP contiene el ejecutable y sus dependencias; extrae la carpeta completa.
+También se ofrecen EXE autónomos de Translator, Base, Digimon y Poka Poka en esa release.
+Estos EXE se abren directamente; el primer arranque puede tardar unos segundos.
 Las releases del scraper y del organizador M3U tienen su propio historial.
 
 Otras herramientas del repositorio: [ROMKit Scraper](tools/scraper/README.md)
@@ -21,6 +23,14 @@ textos exportados. El flujo es común; los formatos internos requieren adaptador
 que dependen del juego, de su versión y, a veces, del parche aplicado.
 
 ## Guía rápida
+
+El código propio de ROMKit Studio, Translator, el núcleo y sus scripts se publica
+bajo [licencia MIT](LICENSE): uso gratuito, modificación y redistribución permitidos.
+Las dependencias y herramientas con licencia propia conservan sus términos;
+la MIT no cambia los derechos sobre juegos ni textos de `catalogs/`.
+
+Los scripts de desarrollo y distribución están en [scripts/desktop](scripts/desktop/README.md).
+No son otra aplicación; `tools/` contiene las utilidades independientes.
 
 1. Instala las dependencias con `uv sync` y abre `uv run romkit-studio`.
 2. Pulsa **Abrir ROM/ISO**, elige el juego y una carpeta de trabajo nueva para él.
@@ -104,9 +114,9 @@ Para distribuir un ejecutable exclusivo, el perfil se fija en el launcher y se
 excluyen los módulos de otros juegos durante la compilación:
 
 ```powershell
-uv run --group build python tools/desktop/build.py --profile base --app studio
-uv run --group build python tools/desktop/build.py --profile digimon --app studio
-uv run --group build python tools/desktop/build.py --profile pokapoka --app studio
+uv run --group build python scripts/desktop/build.py --profile base --app studio
+uv run --group build python scripts/desktop/build.py --profile digimon --app studio
+uv run --group build python scripts/desktop/build.py --profile pokapoka --app studio
 ```
 
 Los resultados están en `dist/ROMKit Studio - Base/`, `dist/ROMKit Studio - Digimon/`
@@ -269,8 +279,8 @@ son las variantes para navegador si se necesitan. Las aplicaciones son de escrit
 Para regenerar los recursos y compilar ambas aplicaciones con sus iconos incrustados:
 
 ```powershell
-uv run python tools/desktop/generate_icons.py
-uv run --group build python tools/desktop/build.py
+uv run python scripts/desktop/generate_icons.py
+uv run --group build python scripts/desktop/build.py
 ```
 
 Se generan `dist/ROMKit Studio/ROMKit Studio.exe` y

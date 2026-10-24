@@ -1,6 +1,6 @@
 """Author ROMKit's 16-pixel vector icons and Windows/browser icon assets.
 
-Run with uv run python tools/desktop/generate_icons.py. All artwork is original,
+Run with uv run python scripts/desktop/generate_icons.py. All artwork is original,
 made from integer rectangles, with nearest-neighbour scaling for crisp pixels.
 """
 import os

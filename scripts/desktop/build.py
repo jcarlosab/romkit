@@ -61,6 +61,7 @@ def main():
     parser.add_argument('--profile', choices=('all', 'base', 'digimon', 'pokapoka'), default='all')
     parser.add_argument('--app', choices=('both', 'studio', 'translator'), default='both')
     parser.add_argument('--dist-dir', type=Path, default=Path('dist'))
+    parser.add_argument('--onefile', action='store_true', help='Generar un EXE autónomo')
     options = parser.parse_args()
     version = release_version()
     dist_dir = (ROOT / options.dist_dir).resolve()
@@ -76,7 +77,7 @@ def main():
         version_file = generated / (name + '-' + options.profile + '-version.txt')
         version_resource(version_file, title, version)
         launcher.write_text('import os\nos.environ["ROMKIT_PROFILE"] = ' + repr(options.profile) + '\n'
-            + (ROOT / f'tools/desktop/{name}.py').read_text(encoding='utf-8'), encoding='utf-8')
+            + (ROOT / f'scripts/desktop/{name}.py').read_text(encoding='utf-8'), encoding='utf-8')
         modules = []
         icon_name = options.profile if name == 'studio' and options.profile in ('digimon', 'pokapoka') else name
         env = build_environment()
@@ -88,15 +89,17 @@ def main():
                         modules += ['--hidden-import', f'romkit_core.adapters.{adapter}.{module.stem}']
             else:
                 modules += ['--exclude-module', f'romkit_core.adapters.{adapter}']
-        subprocess.run([sys.executable, "-m", "PyInstaller", "--clean", "--noconfirm", "--windowed", "--onedir",
+        subprocess.run([sys.executable, "-m", "PyInstaller", "--clean", "--noconfirm", "--windowed", "--onefile" if options.onefile else "--onedir",
             "--name", title, "--icon", str(ROOT / f"src/romkit_core/assets/{icon_name}.ico"),
             '--version-file', str(version_file),
+            '--add-data', str(ROOT / 'LICENSE') + os.pathsep + '.',
             "--paths", str(ROOT / "src"), "--collect-data", "romkit_core", *modules,
             "--specpath", str(ROOT / "build/desktop-specs"),
             "--workpath", str(ROOT / "build/desktop"), "--distpath", str(dist_dir),
             str(launcher)], cwd=ROOT, check=True, env=env)
-        smoke_test(dist_dir / title / (title + '.exe'), env)
-        (dist_dir / title / 'release.json').write_text(json.dumps({'version': version,
+        output = dist_dir if options.onefile else dist_dir / title
+        smoke_test(output / (title + '.exe'), env)
+        (output / (title + '.release.json' if options.onefile else 'release.json')).write_text(json.dumps({'version': version,
             'profile': options.profile if name == 'studio' else 'shared', 'app': name},indent=2),encoding='utf-8')
 
 
