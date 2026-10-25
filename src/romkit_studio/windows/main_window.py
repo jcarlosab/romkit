@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
     create_project_requested = Signal()
     import_translation_requested = Signal()
     export_images_requested = Signal()
+    import_images_requested = Signal()
     create_delta_requested = Signal()
 
     def __init__(self, *, session: SessionModel | None = None, services: StudioServices | None = None):
@@ -74,6 +75,9 @@ class MainWindow(QMainWindow):
         self.export_images_action = QAction("Buscar y extraer imágenes…", self)
         self.export_images_action.setToolTip("Abrir BND, ZIP, zlib/gzip y ARCV; convertir texturas PSP GIM y GMIO a PNG, además de imágenes comunes")
         self.export_images_action.triggered.connect(self.export_images_requested.emit)
+        self.import_images_action = QAction("Importar imágenes…", self)
+        self.import_images_action.setToolTip("Reinsertar PNG editados de una exportación con imagenes.json y crear una ISO nueva")
+        self.import_images_action.triggered.connect(self.import_images_requested.emit)
         self.create_project_action = QAction("Exportar textos…", self)
         self.create_project_action.setToolTip("Guardar los textos seleccionados como proyecto para ROMKit Translator")
         self.create_project_action.triggered.connect(self.create_project_requested.emit)
@@ -93,7 +97,7 @@ class MainWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(exit_action)
         tools_menu = self.menuBar().addMenu("Herramientas")
-        tools_menu.addActions([self.extract_action, self.analyze_action, self.export_images_action,
+        tools_menu.addActions([self.extract_action, self.analyze_action, self.export_images_action, self.import_images_action,
                                self.create_project_action, self.import_translation_action, self.create_delta_action])
         self.pages = QStackedWidget()
         self.start_page = StartPage(self.open_action)
@@ -236,7 +240,8 @@ class MainWindow(QMainWindow):
             ("2 · Aplicar traducción", (
                 (self.import_translation_action, "import-translation"),)),
             ("Imágenes", (
-                (self.export_images_action, "search-images"),)),
+                (self.export_images_action, "search-images"),
+                (self.import_images_action, "import-translation"),)),
             ("3 · Compartir", ((self.create_delta_action, "export-text"),)),
         ):
             group = QGroupBox(title)
@@ -327,6 +332,7 @@ class MainWindow(QMainWindow):
         self.extract_action.setEnabled(state.has_image and state.workspace is not None and not state.busy and not state.resources)
         self.analyze_action.setEnabled(bool(state.resources) and not state.busy)
         self.export_images_action.setEnabled(bool(state.resources) and state.workspace is not None and not state.busy)
+        self.import_images_action.setEnabled(state.has_image and state.workspace is not None and not state.busy)
         self.import_translation_action.setEnabled(state.has_image and state.workspace is not None and not state.busy and bool(enabled_adapters()))
         paths = {r.logical_path for r in state.resources}
         can_repack = any(a.id == 'digimon' and a.matches(paths) for a in enabled_adapters())

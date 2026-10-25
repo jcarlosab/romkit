@@ -128,6 +128,30 @@ externos como parte del flujo y no asumir que una base japonesa equivale al parc
    imágenes conservando todas sus apariciones. Comunica lo que sigue sin ser compatible.
 7. Actualiza README y los mensajes de la interfaz cuando cambie el soporte real.
 
+## Reinserción de imágenes (1.1)
+
+La exportación genera `imagenes.json` esquema 2, ligado al SHA-256 de la ROM y a
+la procedencia BHD/ARCV de cada aparición. Las exportaciones antiguas deben repetirse.
+`project/image_rebuild.py` reconstruye en staging y usa `Iso9660Reader.patch_copy`.
+Los codificadores viven en `adapters/pokapoka/images.py` (GIM) y
+`adapters/digimon/images.py` (GMIO), con píxeles compartidos en `image/pixels.py`.
+Preserva dimensiones, formato, paletas, paso de fila, swizzle y orientación.
+Rechaza colores no representables sin pérdida, GIM multinivel/frame, ZIP y variantes
+sin escritor; no modifica paletas compartidas. Verifica las demás vistas GMIO y
+rechaza cambios indirectos en vistas no seleccionadas. Un PNG deduplicado afecta a
+todas sus apariciones del manifiesto. No inventes importación de cualquier PNG.
+
+## Traducción editorial de Poka Poka
+
+Comprueba el catálogo contra las tablas FMG antes de estimar el trabajo: el snapshot
+de 70.561 entradas contenía 10.682 candidatos sin correspondencia estructural.
+No borres los originales ni traduzcas esa basura. La preparación local separa esos
+candidatos, reutiliza propuestas exactas y conserva las ediciones del usuario.
+CP932 no representa tildes españolas ni ñ; tampoco basta con que una cadena quepa
+si su tabla zlib supera el slot. Conserva las propuestas bloqueadas como Pendiente,
+conserva controles e iconos y no suprimas tildes ni trunques texto sin una decisión
+explícita del usuario. Nunca marques Revisado por haber generado una traducción.
+
 ## Casuísticas que deben comprobarse
 
 - Contenedores: sueltos, ZIP, gzip/zlib, BND y conjuntos FAT/BHD/BND; índices externos,

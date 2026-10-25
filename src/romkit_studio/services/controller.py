@@ -40,6 +40,7 @@ class StudioController(QObject):
         window.import_translation_requested.connect(self.import_translation)
         window.create_delta_requested.connect(self.create_delta)
         window.export_images_requested.connect(self.export_images)
+        window.import_images_requested.connect(self.import_images)
         self.runner.result.connect(self._result)
         self.runner.error.connect(self._error)
         self.runner.progress.connect(self._progress)
@@ -285,6 +286,31 @@ class StudioController(QObject):
         destination = self.dialogs.choose_images_directory(self.window, workspace)
         if destination is not None:
             self._submit(export_images, self._images_exported, state.resources, workspace, destination)
+
+    @Slot()
+    def import_images(self):
+        from romkit_core.project.image_rebuild import rebuild_images
+        state = self.window.session.state
+        if self.runner.busy or not state.has_image or state.workspace is None:
+            return
+        workspace = self._workspace()
+        project = self.dialogs.choose_edited_images(self.window, workspace)
+        if project is None:
+            return
+        destination = self.dialogs.choose_output_iso(self.window, state.image)
+        if destination is not None:
+            self._submit(rebuild_images, self._images_rebuilt, project, workspace, state.image, destination)
+
+    def _images_rebuilt(self, result):
+        from PySide6.QtWidgets import QMessageBox
+        self.window.log_panel.add_message(f'ISO con imágenes creada · {result.path}\n{result.images} apariciones modificadas · {result.resources} recursos. Verificación estructural realizada; pendiente probar en emulador.')
+        dialog = QMessageBox(self.window)
+        dialog.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
+        dialog.setWindowTitle('Imágenes reinsertadas')
+        dialog.setText(f'{result.path}\n{result.images} apariciones en {result.resources} recursos.')
+        dialog.setInformativeText('La ISO original se conserva. Prueba la nueva ISO en PPSSPP. Una imagen deduplicada se aplica a todas sus apariciones del manifiesto.')
+        self._images_build_dialog = dialog
+        dialog.open()
 
     def _images_exported(self, result):
         from PySide6.QtWidgets import QMessageBox

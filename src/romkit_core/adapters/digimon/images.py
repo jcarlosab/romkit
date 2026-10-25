@@ -64,3 +64,37 @@ def decode_gmio(data, at, base, structure):
     row = width * 4
     rgba = b"".join(rgba[y * row:(y + 1) * row] for y in reversed(range(height)))
     return GimImage(width, height, rgba_png(width, height, rgba))
+
+
+def replace_gmio(data, at, base, structure, png):
+    from romkit_core.image.pixels import png_rgba, encode_pixels, unswizzle, swizzle
+    original = decode_gmio(data,at,base,structure)
+    if original is None:
+        raise ValueError('GMIO sin superficie')
+    width,height,rgba = png_rgba(png)
+    if (width,height) != (original.width,original.height):
+        raise ValueError('Conserva las dimensiones originales de GMIO')
+    fmt,_,count,length = struct.unpack_from('<4I',data,at+36)
+    cursor,pitch,palette_info = at+52,width,None
+    for _ in range(count):
+        kind,size = struct.unpack_from('<HH',data,cursor);start=cursor+4;cursor=start+size
+        if kind==1 and size>=20:
+            pitch=struct.unpack_from('<H',data,start+14)[0]
+        if kind==2 and size>=48 and data[start:start+4]==b'TTPO':
+            palette_info=tuple(struct.unpack_from('<I',data,start+n)[0] for n in (12,24,36))
+    pixels_at=base+struct.unpack_from('<I',data,at+12)[0]
+    stride=(pitch*{0:16,1:16,2:16,3:32,4:4,5:8}[fmt]+7)//8
+    rows=(height+7)//8*8
+    raw=data[pixels_at:pixels_at+stride*rows]
+    palette=None
+    if fmt>=4:
+        offset,colors,pf=palette_info;step=4 if pf==3 else 2
+        begin=pixels_at+offset
+        palette=[_color(int.from_bytes(data[begin+n*step:begin+(n+1)*step],'little'),pf) for n in range(colors)]
+    linear=unswizzle(raw,stride,rows)
+    encoded=encode_pixels(rgba,width,height,fmt,stride,linear,palette,flip=True)
+    output=bytearray(data)
+    output[pixels_at:pixels_at+len(raw)]=swizzle(encoded,stride,rows)
+    if png_rgba(decode_gmio(output,at,base,structure).png)[2] != rgba:
+        raise ValueError('La verificación GMIO no coincide')
+    return bytes(output)

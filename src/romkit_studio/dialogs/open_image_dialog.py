@@ -3,6 +3,10 @@ from PySide6.QtWidgets import QFileDialog, QInputDialog
 
 
 class OpenImageDialog:
+    def choose_edited_images(self, parent, workspace):
+        path = QFileDialog.getExistingDirectory(parent, 'Abrir imágenes editadas (carpeta con imagenes.json)', str(workspace.layout.project_root))
+        return Path(path) if path else None
+
     def choose_delta_target(self, parent, image):
         path, _ = QFileDialog.getOpenFileName(parent, 'Elegir la ISO traducida para el parche', str(image.path.parent), 'Imagen (*.iso);;Todos los archivos (*)')
         return Path(path) if path else None

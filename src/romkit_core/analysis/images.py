@@ -97,7 +97,7 @@ def export_images(resources, workspace, destination, *, progress=None):
         and path.rsplit("/", 1)[-1].startswith("ARCV") and path.endswith(".BIN") for index in arcv_indexes)}
     with tempfile.TemporaryDirectory(prefix=".romkit-images-", dir=destination) as temporary:
         staging = Path(temporary)
-        def process(data, logical, index, base=None, structure=None, source_kind=None, source_offset=0):
+        def process(data, logical, index, base=None, structure=None, source_kind=None, source_offset=0, origin=None):
             if base is not None and structure is not None:
                 from romkit_core.adapters.digimon.images import decode_gmio
                 offset = 0
@@ -107,7 +107,7 @@ def export_images(resources, workspace, destination, *, progress=None):
                         image = decode_gmio(data, offset, base, structure)
                         if image is not None:
                             process(image.png, logical + f"!gmio/{offset:x}", index,
-                                    source_kind="gmio", source_offset=offset)
+                                    source_kind="gmio", source_offset=offset, origin=origin)
                     except ValueError as exc:
                         traversal.warn(logical + f"@{offset:x}", exc)
                     offset += 4
@@ -141,19 +141,23 @@ def export_images(resources, workspace, destination, *, progress=None):
                                 files[digest] = relative
                             cached[key].append({"file": files[digest], "sha256": digest,
                                                 "width": width, "height": height})
-                    for image in cached[key]:
+                    for surface, image in enumerate(cached[key]):
                         manifest.append({"source": name, "offset": source_offset if source_kind else start,
                                          "length_bytes": None if source_kind else end - start,
-                                         "source_format": source_kind or kind, **image})
+                                         "source_format": source_kind or kind, "surface": surface,
+                                         "origin": origin, **image})
         for index, resource in enumerate(resources):
             if resource.logical_path in arcv_indexes:
                 from romkit_core.adapters.digimon.archive import iter_arcv
                 traversal.containers += 1
                 source = workspace.layout.path("extracted", resource.logical_path)
                 try:
-                    for name, raw, base, structure in iter_arcv(source):
+                    for name, raw, base, structure, location in iter_arcv(source, with_locations=True):
                         traversal.charge(len(raw))
-                        process(raw, resource.logical_path + "!arcv/" + name, index, base, structure)
+                        process(raw, resource.logical_path + "!arcv/" + name, index, base, structure,
+                                origin={"adapter":"digimon", "archive":resource.logical_path, "member":name,
+                                        "location":location, "base":base, "structure":structure,
+                                        "sha256":hashlib.sha256(raw).hexdigest()})
                 except (ValueError, OSError) as exc:
                     traversal.warn(resource.logical_path, exc)
                 continue
@@ -172,16 +176,19 @@ def export_images(resources, workspace, destination, *, progress=None):
                 try:
                     for slot, name, raw, origin in iter_archive_members(source.parent, parent, stem=source.stem, on_error=traversal.warn):
                         traversal.charge(len(raw))
-                        process(raw, origin["logical_path"], index)
+                        process(raw, origin["logical_path"], index, origin={"adapter":"pokapoka", **origin})
                 except ValueError as exc:
                     traversal.warn(resource.logical_path, exc)
                 continue
             with source.open("rb") as stream, mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as data:
-                process(data, resource.logical_path, index)
+                process(data, resource.logical_path, index, origin={"adapter":"file", "logical_path":resource.logical_path,
+                        "sha256":hashlib.sha256(data).hexdigest()})
         if not manifest and not traversal.warnings:
             return ImageExport(destination, 0)
         duplicates = len(manifest) - len(files)
-        (staging / "imagenes.json").write_text(json.dumps({"images": manifest, "containers": traversal.containers,
+        source_sha = workspace.load_source_metadata().sha256 if workspace.source_metadata_path().exists() else None
+        (staging / "imagenes.json").write_text(json.dumps({"schema_version":2, "source_sha256":source_sha,
+            "images": manifest, "containers": traversal.containers,
             "duplicates": duplicates, "warnings": traversal.warnings}, ensure_ascii=False, indent=2), encoding="utf-8")
         report(progress, len(resources), len(resources), f"Guardando {len(files)} imágenes")
         staging.rename(output)

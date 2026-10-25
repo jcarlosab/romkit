@@ -2,7 +2,7 @@
 
 Monorepo Python con un paquete compartido y dos aplicaciones de escritorio PySide6.
 
-**ROMKit Studio y Translator 1.0.0**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.0.0).
+**ROMKit Studio y Translator 1.1.0**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.1.0).
 Cada ZIP contiene el ejecutable y sus dependencias; extrae la carpeta completa.
 También se ofrecen EXE autónomos de Translator, Base, Digimon y Poka Poka en esa release.
 Estos EXE se abren directamente; el primer arranque puede tardar unos segundos.
@@ -46,15 +46,26 @@ No son otra aplicación; `tools/` contiene las utilidades independientes.
 7. Comprueba la salida en un emulador o en el dispositivo. Conserva el original.
 
 Para extraer gráficos usa **Buscar y extraer imágenes…** después de extraer los
-archivos. Esta función genera imágenes y su manifiesto; todavía no reinserta gráficos.
+archivos. Edita los PNG sin renombrarlos ni cambiar sus dimensiones y conserva
+`imagenes.json`. Usa **Importar imágenes…**, selecciona esa carpeta y guarda una ISO
+nueva. Las exportaciones anteriores a la versión 1.1 deben volver a extraerse.
+Una imagen deduplicada se aplica a todas sus apariciones registradas.
+
+Se admiten GIM de Poka Poka (sueltos y en BND compatibles) y GMIO v5 de Digimon.
+Se conserva la paleta original: los PNG indexados deben usar sus mismos colores
+RGBA, incluida transparencia. Los formatos directos de 16 bits requieren colores
+representables sin pérdida. Se rechazan GIM con varios niveles/frames, ZIP,
+contenedores desconocidos y cambios que afecten a vistas GMIO compartidas no editadas.
+Los píxeles conservan su espacio; los recursos zlib pueden usar únicamente relleno
+cero verificado antes del siguiente miembro BHD. No se amplían volúmenes ni la ISO.
 
 ### Compatibilidad actual
 
-| Juego o caso | Extraer textos | Editar en Translator | Reinsertar textos | Extraer imágenes |
-| --- | --- | --- | --- | --- |
-| Poka Poka Ailu Mura G, LDMU 0x210 / FMG | Sí, CP932 indexado | Sí | Sí, con límites de bytes y espacio comprimido | GIM y formatos admitidos |
-| Digimon World Re:Digitize PSP, VCRA 0x101 / BTX v1 | Sí, UTF-16LE, incluido el parche inglés probado | Sí | Sí, dentro de los bytes originales de cada cadena | GMIO v5; algunas paletas pendientes |
-| Otros juegos con estructura PSP ISO9660 compatible | Candidatos genéricos; pueden requerir un adaptador | Sí, si se exportan textos válidos | Requiere un adaptador de escritura | Solo formatos y contenedores admitidos |
+| Juego o caso | Extraer textos | Editar en Translator | Reinsertar textos | Extraer imágenes | Reinsertar imágenes |
+| --- | --- | --- | --- | --- | --- |
+| Poka Poka Ailu Mura G, LDMU 0x210 / FMG | Sí, CP932 indexado | Sí | Sí, con límites de bytes y espacio comprimido | GIM y formatos admitidos | GIM de una superficie/nivel, paleta y dimensiones originales; BND compatibles |
+| Digimon World Re:Digitize PSP, VCRA 0x101 / BTX v1 | Sí, UTF-16LE, incluido el parche inglés probado | Sí | Sí, dentro de los bytes originales de cada cadena | GMIO v5; algunas paletas pendientes | GMIO v5 decodificable, paleta y dimensiones originales; vistas compartidas protegidas |
+| Otros juegos con estructura PSP ISO9660 compatible | Candidatos genéricos; pueden requerir un adaptador | Sí, si se exportan textos válidos | Requiere un adaptador de escritura | Solo formatos y contenedores admitidos | PNG de igual dimensión que quepa en su espacio; otros formatos requieren adaptador |
 
 La detección de texto no garantiza su reinserción. La existencia de IDs de otras
 plataformas en el núcleo tampoco significa que sus ROMs puedan abrirse o reconstruirse.
