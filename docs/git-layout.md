@@ -107,7 +107,7 @@ ROMKit-Translator.zip
 
 Puedes publicar también la compilación completa de Studio como otro ZIP. Copia la
 carpeta completa; el `.exe` solo no contiene todas las dependencias. Studio y Translator
-se publican como `v1.1.0`, separados del historial de las utilidades ya publicadas.
+se publican como `v1.2.0`, separados del historial de las utilidades ya publicadas.
 Los ZIP llevan versión en su nombre.
 
 Los EXE autónomos se compilan con `scripts/desktop/build.py --onefile` y se publican

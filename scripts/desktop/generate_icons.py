@@ -102,6 +102,7 @@ def icons():
         "restore": rect(3,4,9,2,BLUE)+rect(11,6,2,6,BLUE)+rect(6,11,5,2,BLUE)+rect(1,5,4,2,BLUE)+rect(3,2,2,7,BLUE),
         "copy": rect(1,1,9,11)+rect(2,2,7,9,SKY)+rect(5,4,10,11)+rect(6,5,8,9,PAPER)+rect(8,7,4,1,BLUE)+rect(8,10,4,1,BLUE),
         "suggest": rect(7,1,2,12,TEAL)+rect(2,6,12,2,TEAL)+rect(5,4,6,6,GOLD)+rect(7,6,2,2,PAPER)+rect(12,1,2,2,BLUE)+rect(2,12,2,2,BLUE),
+        "special-characters": rect(1,3,7,11)+rect(2,4,5,9,PAPER)+rect(3,7,1,5,BLUE)+rect(4,6,2,1,BLUE)+rect(6,7,1,5,BLUE)+rect(3,9,4,1,BLUE)+rect(5,1,2,1,TEAL)+rect(4,2,2,1,TEAL)+rect(9,7,6,2,TEAL)+rect(12,5,1,6,TEAL)+rect(13,6,1,4,TEAL),
         "apply": bubble()+rect(9,10,6,5,PAPER)+rect(10,12,2,2,TEAL)+rect(12,10,2,2,TEAL),
         "info": info, "close": frame()+cross(), "exit": rect(3,1,9,14)+rect(4,2,7,12,BLUE)+rect(9,8,2,2,GOLD),
     }

@@ -1,10 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
-class TaskError:
-    message: str
-    traceback: str
+from romkit_core.tasks import TaskError
 
 
 @dataclass(frozen=True)

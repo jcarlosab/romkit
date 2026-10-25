@@ -2,7 +2,7 @@
 
 Monorepo Python con un paquete compartido y dos aplicaciones de escritorio PySide6.
 
-**ROMKit Studio y Translator 1.1.0**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.1.0).
+**ROMKit Studio y Translator 1.2.0**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.2.0).
 Cada ZIP contiene el ejecutable y sus dependencias; extrae la carpeta completa.
 También se ofrecen EXE autónomos de Translator, Base, Digimon y Poka Poka en esa release.
 Estos EXE se abren directamente; el primer arranque puede tardar unos segundos.
@@ -35,6 +35,16 @@ la MIT no cambia los derechos sobre juegos ni textos de `catalogs/`.
 
 Los scripts de desarrollo y distribución están en [scripts/desktop](scripts/desktop/README.md).
 No son otra aplicación; `tools/` contiene las utilidades independientes.
+
+En Translator, **Caracteres especiales…** muestra los caracteres de las traducciones,
+sus apariciones y compatibilidad con el codec. Asigna sustituciones, pulsa
+**Previsualizar** y después **Aplicar a traducciones**. Afecta a todo el proyecto,
+incluidas propuestas pendientes con texto, y conserva originales y controles.
+Los textos modificados pierden su marca de revisado; **Deshacer sustitución** restaura
+el último lote si no has vuelto a editar esos textos. Pulsa **Guardar** para escribir
+los cambios. Un campo de sustitución vacío elimina ese carácter. El reemplazo es
+simultáneo, sin encadenar reglas; no modifica las imágenes de las fuentes ni elimina
+las validaciones de tamaño y codec de la ROM.
 
 1. Instala las dependencias con `uv sync` y abre `uv run romkit-studio`.
 2. Pulsa **Abrir ROM/ISO**, elige el juego y una carpeta de trabajo nueva para él.

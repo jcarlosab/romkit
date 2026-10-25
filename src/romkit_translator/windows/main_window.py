@@ -22,6 +22,7 @@ class MainWindow(QMainWindow):
         self.setWindowFlag(Qt.WindowType.WindowMaximizeButtonHint, False)
         self.session = session if session is not None else ProjectSession()
         self.current_row = None
+        self._character_undo = None
         self.suggestions = suggestions if suggestions is not None else OnlineSuggestions(self)
         self._suggestion_context = None
         self.suggestions.ready.connect(self._suggestion_ready)
@@ -34,6 +35,12 @@ class MainWindow(QMainWindow):
         self.save_action.triggered.connect(self.save_project)
         self.validate_action = QAction("Validar traducciones", self)
         self.validate_action.triggered.connect(self.validate_project)
+        self.characters_action = QAction('Caracteres especiales…', self)
+        self.characters_action.setIcon(application_icon('special-characters'))
+        self.characters_action.triggered.connect(self.show_characters)
+        self.undo_characters_action = QAction('Deshacer sustitución', self)
+        self.undo_characters_action.setIcon(application_icon('restore'))
+        self.undo_characters_action.triggered.connect(self.undo_characters)
         toolbar = QToolBar("Proyecto", self)
         toolbar.setMovable(False)
         toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
@@ -41,7 +48,7 @@ class MainWindow(QMainWindow):
         self.save_action.setIcon(application_icon("save"))
         self.validate_action.setIcon(application_icon("validate"))
         toolbar.setIconSize(QSize(24, 24))
-        toolbar.addActions([self.open_action, self.save_action, self.validate_action])
+        toolbar.addActions([self.open_action, self.save_action, self.validate_action, self.characters_action, self.undo_characters_action])
         toolbar.setFloatable(False)
         self.addToolBar(toolbar)
         central = QWidget()
@@ -111,6 +118,7 @@ class MainWindow(QMainWindow):
             self.feedback.setText(f"No se pudo abrir el proyecto: {exc}")
             return False
         self.current_row = None
+        self._character_undo = None
         self.editor.load_unit(None)
         self.model.refresh()
         self.project_label.setText(f"{self.session.root.name} · {self.session.config.source_language} → {self.session.config.target_language}")
@@ -161,6 +169,8 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage(f"{translated} / {total} traducidas o revisadas" + (" · Cambios sin guardar" if self.session.dirty else ""))
         self.save_action.setEnabled(self.session.dirty)
         self.validate_action.setEnabled(self.session.root is not None)
+        self.characters_action.setEnabled(self.session.root is not None)
+        self.undo_characters_action.setEnabled(self._character_undo is not None)
         self.setWindowTitle("ROMKit Translator · v" + __version__ + (" *" if self.session.dirty else ""))
 
     def save_project(self):
@@ -191,7 +201,39 @@ class MainWindow(QMainWindow):
             return self.save_project()
         return choice == QMessageBox.StandardButton.Discard
 
+    def show_characters(self):
+        from romkit_translator.dialogs.characters_dialog import CharactersDialog
+        if self.session.root is None:return
+        self._character_dialog=CharactersDialog(tuple(r.unit for r in self.session.records),self)
+        self._character_dialog.applied.connect(self.apply_characters)
+        self._character_dialog.open()
+
+    def _characters_refreshed(self):
+        row=self.current_row
+        self.suggestions.cancel();self._suggestion_context=None
+        self.model.refresh()
+        if row is not None:
+            self.table.setCurrentIndex(self.proxy.mapFromSource(self.model.index(row,0)))
+            self.current_row=row;self.editor.load_unit(self.session.records[row].unit)
+        self._refresh_state()
+
+    def apply_characters(self,plan):
+        try:self.session.apply_character_plan(plan)
+        except Exception as exc:self.feedback.setText(str(exc));return
+        self._character_undo=plan;self._characters_refreshed()
+        self.feedback.setText(f'{len(plan.changes)} traducciones modificadas · {plan.occurrences} sustituciones. Guarda para conservar los cambios.')
+
+    def undo_characters(self):
+        if self._character_undo is None:return
+        try:self.session.apply_character_plan(self._character_undo,undo=True)
+        except Exception as exc:self.feedback.setText(str(exc));return
+        self._character_undo=None;self._characters_refreshed()
+        self.feedback.setText('Sustitución deshecha. Se han restaurado los textos y sus estados anteriores.')
+
     def closeEvent(self, event):
+        dialog=getattr(self,'_character_dialog',None)
+        if dialog is not None and dialog.runner.busy:
+            dialog.reject();event.ignore();return
         if self._confirm_dirty():
             self.suggestions.cancel()
             event.accept()

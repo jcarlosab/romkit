@@ -20,3 +20,9 @@ def report(progress: ProgressCallback | None, completed: int, total: int, messag
 
 class TaskCancelled(Exception):
     pass
+
+
+@dataclass(frozen=True)
+class TaskError:
+    message: str
+    traceback: str

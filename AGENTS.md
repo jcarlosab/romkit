@@ -168,6 +168,15 @@ no supongas que el tercer PNG sjisfont es la fuente activa de todos los textos.
 
 ## Casuísticas que deben comprobarse
 
+Translator 1.2 dispone de sustitución editorial de caracteres con previsualización.
+La lógica pura está en `project/characters.py`; no altera originales, controles ni
+tokens registrados. Se aplica una sola pasada, sin encadenar reglas. Los cambios
+se guardan por el flujo habitual y desmarcan revisión. La anulación de un lote exige
+que sus textos no se hayan editado después, para no perder trabajo. Inventario y
+previsualización usan el runner compartido `romkit_core/qt_tasks.py`, sin bloquear
+la interfaz ni importar Studio desde Translator. No aplicar automáticamente mapas
+al proyecto real: las asignaciones y la aplicación las elige el usuario.
+
 - Contenedores: sueltos, ZIP, gzip/zlib, BND y conjuntos FAT/BHD/BND; índices externos,
   múltiples volúmenes, entradas vacías, duplicadas, desconocidas o fuera de límites.
 - Imágenes: PNG y formatos comunes, GIM, texturas GMIO dentro de KCAP/ARCV; color

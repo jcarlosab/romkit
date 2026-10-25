@@ -77,3 +77,12 @@ class ProjectSession:
             # Track each successful atomic replacement, even if a later file fails.
             self._original_bytes[path] = path.read_bytes()
             self._saved[path] = tuple(units)
+
+    def apply_character_plan(self, plan, *, undo=False):
+        for change in plan.changes:
+            expected=change.after if undo else change.before
+            if not 0<=change.row<len(self.records) or self.records[change.row].unit!=expected:
+                raise ValidationError('Los textos han cambiado desde la previsualización; vuelve a calcularla')
+        for change in plan.changes:
+            record=self.records[change.row]
+            self.records[change.row]=replace(record,unit=change.before if undo else change.after)
