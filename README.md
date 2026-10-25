@@ -16,6 +16,10 @@ Retro M3U Organizer conserva su licencia [GPL-3.0](tools/m3u-organizer/LICENSE).
 Los [catálogos actuales de los proyectos](catalogs/README.md) se publican por petición
 del propietario y se abren directamente en Translator. No contienen ROMs ni extracciones.
 
+El [trabajo editorial en español de Poka Poka](docs/pokapoka-spanish-draft.md)
+conserva ñ y tildes. Su cobertura de borrador, procedencia y trabajo pendiente de
+fuentes y reinserción se documentan por separado de la compatibilidad de los EXE.
+
 Para publicar el proyecto, consulta [qué subir a Git y cómo distribuir los ejecutables](docs/git-layout.md).
 
 **Studio** trabaja con la ROM y sus recursos. **Translator** permite traducir los

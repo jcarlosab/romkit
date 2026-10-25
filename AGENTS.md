@@ -152,6 +152,20 @@ si su tabla zlib supera el slot. Conserva las propuestas bloqueadas como Pendien
 conserva controles e iconos y no suprimas tildes ni trunques texto sin una decisión
 explícita del usuario. Nunca marques Revisado por haber generado una traducción.
 
+El usuario autorizó continuar con español Unicode (ñ y tildes) y posponer su
+sustitución al código del juego. `prepare_pokapoka.py --editorial` separa el estado
+Traducido de la validación de reinserción; no relaja el escritor ISO. La generación
+local opcional se hace con `scripts/translation/offline_draft.py`, con dependencias
+y modelo fuera de la aplicación y sin peticiones de red con textos. Conservar
+destinos anteriores, controles, procedencia y caché; no confundir borrador masivo
+con revisión lingüística o traducción jugable terminada. Los informes de `translations/`
+son locales. `docs/pokapoka-spanish-draft.md` registra cobertura y límites reales.
+
+`adapters/pokapoka/fonts.py` lee solo CCM 0x10001 verificados. El informe de fuentes
+es una auditoría de candidatos, nunca un permiso automático para sobrescribir glifos.
+MainFont/TitleFont y sjisfont no tienen una asociación a atlas igualmente verificada:
+no supongas que el tercer PNG sjisfont es la fuente activa de todos los textos.
+
 ## Casuísticas que deben comprobarse
 
 - Contenedores: sueltos, ZIP, gzip/zlib, BND y conjuntos FAT/BHD/BND; índices externos,
