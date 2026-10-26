@@ -2,7 +2,7 @@
 
 Monorepo Python con un paquete compartido y dos aplicaciones de escritorio PySide6.
 
-**ROMKit Studio y Translator 1.2.0**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.2.0).
+**ROMKit Studio y Translator 1.2.1**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.2.1).
 Cada ZIP contiene el ejecutable y sus dependencias; extrae la carpeta completa.
 También se ofrecen EXE autónomos de Translator, Base, Digimon y Poka Poka en esa release.
 Estos EXE se abren directamente; el primer arranque puede tardar unos segundos.
@@ -55,6 +55,8 @@ las validaciones de tamaño y codec de la ROM.
    interno de los archivos siga diciendo `jp`.
 5. Abre `uv run romkit-translator`, pulsa **Abrir proyecto** y elige la carpeta
    que contiene `project.toml`. Traduce, marca **Revisada** cuando corresponda y guarda.
+   El buscador de Translator filtra por original, traducción o ID sin distinguir
+   mayúsculas; usa **Ctrl+F** para enfocarlo y la **×** para volver a ver todos los textos.
 6. Si el juego admite reinserción, vuelve a Studio con la misma ROM y carpeta de
    trabajo. Pulsa **Importar traducción…**, elige el proyecto y guarda una ISO nueva.
 7. Comprueba la salida en un emulador o en el dispositivo. Conserva el original.

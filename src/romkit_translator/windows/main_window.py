@@ -1,9 +1,10 @@
-from PySide6.QtCore import QSortFilterProxyModel, Qt, QSize
+from PySide6.QtCore import Qt, QSize, QTimer
 from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import QLabel, QMainWindow, QMessageBox, QSplitter, QToolBar, QVBoxLayout, QWidget, QStyle, QProgressBar
+from PySide6.QtWidgets import QLabel, QMainWindow, QMessageBox, QSplitter, QToolBar, QVBoxLayout, QWidget, QStyle, QProgressBar, QLineEdit, QHBoxLayout
 
 from romkit_translator.dialogs.open_project_dialog import choose_project
 from romkit_translator.models.translation_table_model import TranslationTableModel
+from romkit_translator.models.translation_filter import TranslationFilter
 from romkit_translator.services.project_session import ProjectSession
 from romkit_translator.widgets.translation_editor import TranslationEditor
 from romkit_translator.widgets.translation_table import TranslationTable
@@ -61,11 +62,28 @@ class MainWindow(QMainWindow):
         self.feedback.setWordWrap(True)
         self.feedback.setTextFormat(Qt.TextFormat.PlainText)
         layout.addWidget(self.feedback)
+        search_layout = QHBoxLayout()
+        self.search = QLineEdit()
+        self.search.setPlaceholderText("Buscar en originales, traducciones o ID… (Ctrl+F)")
+        self.search.setAccessibleName("Buscar textos")
+        self.search.setClearButtonEnabled(True)
+        self.search_results = QLabel()
+        search_layout.addWidget(self.search, 1)
+        search_layout.addWidget(self.search_results)
+        layout.addLayout(search_layout)
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.setInterval(200)
+        self.search.textChanged.connect(lambda: self.search_timer.start())
+        self.search_timer.timeout.connect(self._search_texts)
+        self.find_action = QAction("Buscar textos", self)
+        self.find_action.setShortcut(QKeySequence.StandardKey.Find)
+        self.find_action.triggered.connect(self._focus_search)
+        self.addAction(self.find_action)
         splitter = QSplitter()
         self.table = TranslationTable()
         self.model = TranslationTableModel(self.session, self)
-        self.proxy = QSortFilterProxyModel(self)
-        self.proxy.setDynamicSortFilter(False)
+        self.proxy = TranslationFilter(self)
         self.proxy.setSourceModel(self.model)
         self.table.setModel(self.proxy)
         self.table.setColumnWidth(0, 90)
@@ -89,7 +107,8 @@ class MainWindow(QMainWindow):
             QToolBar, QMenuBar, QMenu { background: #ffffff; padding: 6px; }
             QToolBar { spacing: 8px; padding: 8px; border-bottom: 1px solid #dce2ea; }
             QMenuBar::item:selected, QMenu::item:selected { background: #2563eb; color: #ffffff; }
-            QTableView, QPlainTextEdit, QComboBox { background: #ffffff; color: #172b4d; border: 1px solid #dce2ea; }
+            QTableView, QPlainTextEdit, QComboBox, QLineEdit { background: #ffffff; color: #172b4d; border: 1px solid #dce2ea; }
+            QLineEdit { padding: 7px; selection-background-color: #2563eb; selection-color: white; }
             QTableView { alternate-background-color: #eef3f8; selection-background-color: #2563eb; selection-color: white; }
             QHeaderView::section { background: #eaf0f6; color: #172b4d; padding: 6px; border: none; }
             QStatusBar { background: #ffffff; color: #52657d; }
@@ -102,6 +121,20 @@ class MainWindow(QMainWindow):
         self.translation_progress.setToolTip('Cada entrada traducida o revisada cuenta una vez, aunque una revisada tenga traducción vacía. No mide la calidad ni la longitud del texto.')
         self.statusBar().addPermanentWidget(self.translation_progress)
         self.model.refresh()
+        self._refresh_state()
+
+    def _focus_search(self):
+        self.search.setFocus()
+        self.search.selectAll()
+
+    def _search_texts(self):
+        row = self.current_row
+        self.proxy.set_query(self.search.text())
+        index = self.proxy.mapFromSource(self.model.index(row, 0)) if row is not None else self.proxy.index(0, 0)
+        if not index.isValid():
+            index = self.proxy.index(0, 0)
+        self.table.setCurrentIndex(index)
+        self._selected(index, index)
         self._refresh_state()
 
     def _choose_project(self):
@@ -121,6 +154,9 @@ class MainWindow(QMainWindow):
         self._character_undo = None
         self.editor.load_unit(None)
         self.model.refresh()
+        self.search_timer.stop()
+        self.search.clear()
+        self.proxy.set_query("")
         self.project_label.setText(f"{self.session.root.name} · {self.session.config.source_language} → {self.session.config.target_language}")
         self.feedback.clear()
         self._refresh_state()
@@ -168,6 +204,7 @@ class MainWindow(QMainWindow):
         self.translation_progress.setFormat(f'{percentage:.3f}% completado')
         self.statusBar().showMessage(f"{translated} / {total} traducidas o revisadas" + (" · Cambios sin guardar" if self.session.dirty else ""))
         self.save_action.setEnabled(self.session.dirty)
+        self.search_results.setText(f"{self.proxy.rowCount()} / {total} textos")
         self.validate_action.setEnabled(self.session.root is not None)
         self.characters_action.setEnabled(self.session.root is not None)
         self.undo_characters_action.setEnabled(self._character_undo is not None)
@@ -214,7 +251,7 @@ class MainWindow(QMainWindow):
         self.model.refresh()
         if row is not None:
             self.table.setCurrentIndex(self.proxy.mapFromSource(self.model.index(row,0)))
-            self.current_row=row;self.editor.load_unit(self.session.records[row].unit)
+            self._selected(self.table.currentIndex(), self.table.currentIndex())
         self._refresh_state()
 
     def apply_characters(self,plan):
