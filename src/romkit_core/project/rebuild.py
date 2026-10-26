@@ -90,7 +90,7 @@ def rebuild_project(project, workspace, image, destination, *, progress=None, ex
         if candidate.transforms.steps or adapter is None or not adapter.accepts(candidate, origin):
             raise ValidationError("Formato de reinserción no compatible con los adaptadores habilitados")
         effective = replace(unit, encoding=candidate.encoding,
-                            constraints=replace(unit.constraints, max_bytes=None if experimental and adapter.id == "digimon" else min(candidate.length_bytes,
+                            constraints=replace(unit.constraints, max_bytes=None if experimental and adapter.id in ("digimon", "pokapoka") else min(candidate.length_bytes,
                                 unit.constraints.max_bytes if unit.constraints.max_bytes is not None else candidate.length_bytes)))
         validation = validate_translation(effective)
         if not validation.valid:

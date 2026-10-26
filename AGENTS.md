@@ -194,6 +194,13 @@ al proyecto real: las asignaciones y la aplicación las elige el usuario.
 
 ## Casos conocidos y límites
 
+- Poka Poka admite el check de pruebas para cadenas FMG largas: `pokapoka/repack.py`
+  conserva el recurso original y añade las cadenas largas al final, actualizando
+  todos los alias de sus punteros y el tamaño FMG/BHD. Verifica por índice, nunca por
+  offsets editoriales antiguos. No compacta cadenas ni reubica recursos BHD; exige
+  capacidad dentro de la asignación y relleno cero, sin miembros solapados. Conserva
+  CP932 y sus límites de glifos. No confundir esta ampliación con soporte Unicode.
+
 - Poka Poka: índices LDMU 0x210 FAT/BHD/BND, sectores de 1024 bytes, recursos FMG
   CP932 y texturas GIM. El lector indexado evita perder texto inglés o cadenas cortas.
   La reinserción existente está limitada a este adaptador y conserva el tamaño de la ISO.

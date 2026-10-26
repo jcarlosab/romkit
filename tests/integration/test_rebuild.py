@@ -27,8 +27,19 @@ def build_context(tmp_path, request):
     # Real archive slots are aligned and padded; allow compression growth in the slot.
     bnd = archive / "POKAPOKA.BND"
     bnd.write_bytes(bnd.read_bytes().ljust(2048, b"\0"))
+    variant = getattr(request, "param", True)
+    if variant == 'occupied':
+        data = bytearray(bnd.read_bytes())
+        data[100:1024] = b'X' * 924
+        bnd.write_bytes(data)
     bhd = bytearray((archive / "POKAPOKA.BHD").read_bytes())
     struct.pack_into("<I", bhd, 12, 2048)
+    if variant == 'neighbor':
+        struct.pack_into('<I', bhd, 8, 2)
+        bhd.extend(struct.pack('<4I', 222, 1, 1024, 0) + bytes(24))
+        data = bytearray(bnd.read_bytes())
+        data[1024:] = b'N' * 1024
+        bnd.write_bytes(data)
     (archive / "POKAPOKA.BHD").write_bytes(bhd)
     files = {f"PSP_GAME/USRDIR/{path.name}": path.read_bytes() for path in archive.iterdir()}
     source = tmp_path / "original.iso"
@@ -208,4 +219,45 @@ def test_modified_archive_origin_is_rejected(build_context):
     workspace.write_metadata("reinsert.json", data)
     with pytest.raises(ValidationError, match="tabla original no coincide"):
         rebuild_project(project, workspace, image, output)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("build_context", [True, False, 'neighbor'], indirect=True)
+def test_pokapoka_experimental_long_text_roundtrip(build_context, tmp_path):
+    project, workspace, image, output = build_context
+    path = project / 'text/main.jsonl'
+    units = read_jsonl(path)
+    target = 'Una traduccion mucho mas larga que la cadena original ' * 3
+    units[0] = replace(units[0], target=target)
+    write_jsonl(path, units)
+    with pytest.raises(ValidationError):
+        rebuild_project(project, workspace, image, output)
+    original = image.path.read_bytes()
+    result = rebuild_project(project, workspace, image, output, experimental=True)
+    assert result.experimental and image.path.read_bytes() == original
+    reader = Iso9660Reader()
+    with reader.open(output) as iso:
+        reader.extract_all(iso, tmp_path / 'grown')
+    directory = tmp_path / 'grown/PSP_GAME/USRDIR'
+    found, origins = scan_archive(directory, 'PSP_GAME/USRDIR')
+    assert [c.text for c in found] == [target, 'Pending source']
+    assert origins[0]['raw_size'] > 100
+    assert output.stat().st_size == len(original)
+    if b'N' * 1024 in original:
+        assert (directory / 'POKAPOKA.BND').read_bytes()[1024:] == b'N' * 1024
+
+
+@pytest.mark.parametrize('build_context', ['occupied', True], indirect=True)
+def test_pokapoka_experimental_rejects_occupied_padding_and_overflow(build_context, request):
+    import random
+    project, workspace, image, output = build_context
+    path = project / 'text/main.jsonl'
+    units = read_jsonl(path)
+    rng = random.Random(9)
+    length = 800 if request.node.callspec.params['build_context'] == 'occupied' else 6000
+    target = ''.join(rng.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=length))
+    units[0] = replace(units[0], target=target)
+    write_jsonl(path, units)
+    with pytest.raises(ValidationError, match='relleno ocupado' if length == 800 else 'bytes'):
+        rebuild_project(project, workspace, image, output, experimental=True)
     assert not output.exists()

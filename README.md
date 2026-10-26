@@ -2,7 +2,7 @@
 
 Monorepo Python con un paquete compartido y dos aplicaciones de escritorio PySide6.
 
-**ROMKit Studio y Translator 1.2.1**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.2.1).
+**ROMKit Studio y Translator 1.2.2**: [descargas de Windows](https://github.com/jcarlosab/romkit/releases/tag/v1.2.2).
 Cada ZIP contiene el ejecutable y sus dependencias; extrae la carpeta completa.
 También se ofrecen EXE autónomos de Translator, Base, Digimon y Poka Poka en esa release.
 Estos EXE se abren directamente; el primer arranque puede tardar unos segundos.
@@ -79,12 +79,22 @@ cero verificado antes del siguiente miembro BHD. No se amplían volúmenes ni la
 
 | Juego o caso | Extraer textos | Editar en Translator | Reinsertar textos | Extraer imágenes | Reinsertar imágenes |
 | --- | --- | --- | --- | --- | --- |
-| Poka Poka Ailu Mura G, LDMU 0x210 / FMG | Sí, CP932 indexado | Sí | Sí, con límites de bytes y espacio comprimido | GIM y formatos admitidos | GIM de una superficie/nivel, paleta y dimensiones originales; BND compatibles |
+| Poka Poka Ailu Mura G, LDMU 0x210 / FMG | Sí, CP932 indexado | Sí | Sí; modo de pruebas para cadenas más largas dentro de la asignación y relleno cero verificado | GIM y formatos admitidos | GIM de una superficie/nivel, paleta y dimensiones originales; BND compatibles |
 | Digimon World Re:Digitize PSP, VCRA 0x101 / BTX v1 | Sí, UTF-16LE, incluido el parche inglés probado | Sí | Sí, dentro de los bytes originales de cada cadena | GMIO v5; algunas paletas pendientes | GMIO v5 decodificable, paleta y dimensiones originales; vistas compartidas protegidas |
 | Otros juegos con estructura PSP ISO9660 compatible | Candidatos genéricos; pueden requerir un adaptador | Sí, si se exportan textos válidos | Requiere un adaptador de escritura | Solo formatos y contenedores admitidos | PNG de igual dimensión que quepa en su espacio; otros formatos requieren adaptador |
 
 La detección de texto no garantiza su reinserción. La existencia de IDs de otras
 plataformas en el núcleo tampoco significa que sus ROMs puedan abrirse o reconstruirse.
+
+En Poka Poka puedes activar **Pruebas: textos más largos** antes de **Importar
+traducción…**. Recoloca las cadenas largas al final de su FMG, actualiza todos sus
+punteros y los tamaños BHD y comprueba también las entradas pendientes por índice.
+Conserva los bytes originales de las cadenas recolocadas; no compacta toda la tabla.
+El recurso comprimido o sin comprimir debe caber en su asignación original y el
+relleno cero comprobado antes del siguiente recurso. No reubica recursos ni amplía
+la ISO. Rechaza relleno ocupado, cadenas solapadas y falta de espacio; no trunca.
+El codec sigue siendo CP932: esto no añade glifos para ñ o tildes. Comprueba la ISO
+de pruebas en emulador; la validación estructural no comprueba su presentación.
 
 ### Qué carpetas debes conservar
 

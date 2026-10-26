@@ -259,7 +259,7 @@ class MainWindow(QMainWindow):
                 self.workflow_buttons[action] = button
             if title.startswith("2"):
                 self.experimental_reinsert = QCheckBox("Pruebas: textos más largos")
-                self.experimental_reinsert.setToolTip("Digimon BTX: redistribuir el espacio entre cadenas de una tabla. Rechaza bloques que no caben; no trunca textos ni sobrescribe otros recursos. Probar en emulador.")
+                self.experimental_reinsert.setToolTip("Poka Poka FMG: recolocar cadenas largas y actualizar punteros, dentro del espacio original del recurso y su relleno cero. Digimon BTX: redistribuir cadenas y ampliar tutoriales compatibles. No amplía la ISO ni añade glifos. Probar en emulador.")
                 group_layout.addWidget(self.experimental_reinsert)
                 description = QLabel("Proyecto de Translator → ISO nueva")
                 description.setWordWrap(True)
@@ -335,7 +335,7 @@ class MainWindow(QMainWindow):
         self.import_images_action.setEnabled(state.has_image and state.workspace is not None and not state.busy)
         self.import_translation_action.setEnabled(state.has_image and state.workspace is not None and not state.busy and bool(enabled_adapters()))
         paths = {r.logical_path for r in state.resources}
-        can_repack = any(a.id == 'digimon' and a.matches(paths) for a in enabled_adapters())
+        can_repack = any(a.id in ('digimon', 'pokapoka') and a.matches(paths) for a in enabled_adapters())
         self.experimental_reinsert.setEnabled(not state.busy and can_repack)
         if not can_repack:
             self.experimental_reinsert.setChecked(False)
